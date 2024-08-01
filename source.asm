@@ -16,6 +16,9 @@ section .data
 
 section .bss
     buf resb 255
+    fd_out resb 1
+    fd_in resb 1
+    info resb 26
 
 section .text
     global _start
@@ -54,44 +57,53 @@ startup:
 
     mov byte [ecx + eax], 0 
     
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, startupmsg1
-    mov edx, size1
-    int 0x80 ; print input for debugging reasons
+    ;mov eax, 4
+    ;mov ebx, 1
+    ;mov ecx, startupmsg1
+    ;mov edx, size1
+    ;int 0x80 ; print input for debugging reason
+    cmp byte [buf], '1'
+    je read
+    
+    cmp byte [buf], '2'
+    je write
 
-    ;cmp buf, 1
-    ;je read
+    cmp byte [buf], '3'
+    je remove
 
-    ;cmp buf, 2
-    ;je write
-
-    ;cmp buf, 3
-    ;je remove
-
-    ;cmp buf, 4
-    ;jge exit
-    jmp exit
+    cmp byte [buf], '4'
+    je exit
+    ;jmp exit
 read:
     mov eax, 5
     mov ebx, filename
     mov ecx, 0
-    int 0x80
+    mov edx, 0777
+    int 0x80 ; opens file for read
 
-    test eax, eax
-    js file_not_found
-
-    mov ebx, eax  
-
+    mov [fd_in], eax ; save the file descriptor for later use
 
     mov eax, 3
-    mov ecx, buffer
-    mov edx, 1024
-    int 0x80
+    mov ebx, [fd_in]
+    mov ecx, info
+    mov edx, 26
+    int 0x80 ; reads from the file
 
     mov eax, 6
-    int 0x80
+    mov ebx, [fd_in]
+    int 0x80 ; close file
 
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, info
+    mov edx, 26
+    int 0x80 ; prints the file
+
+    jmp startup
+write:
+    jmp exit
+remove:
+    jmp exit
 file_not_found:
     mov eax, 8
     mov ebx, filename
