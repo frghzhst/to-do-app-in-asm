@@ -13,6 +13,8 @@ section .data
     sizeofinpt equ - usrinpt
     exitmsg db 'exiting program', 0x0a, 0
     sizeexit equ - exitmsg
+    newline db 0x0a, 0
+    lsize equ - newline
 
 section .bss
     buf resb 255
@@ -55,13 +57,14 @@ startup:
     mov edx, 255     
     int 0x80 ; read user input
 
-    mov byte [ecx + eax], 0 
+    ;mov byte [ecx + eax], 0 
     
     ;mov eax, 4
     ;mov ebx, 1
     ;mov ecx, startupmsg1
     ;mov edx, size1
     ;int 0x80 print input for debugging reason
+    
     cmp byte [buf], '1'
     je read
     
@@ -73,7 +76,7 @@ startup:
 
     cmp byte [buf], '4'
     je exit
-    ;jmp exit
+
 read:
     mov eax, 5
     mov ebx, filename
@@ -107,15 +110,8 @@ write:
 remove:
     jmp exit
 
-file_not_found:
-    mov eax, 8
-    mov ebx, filename
-    mov ecx, 0777
-    int 0x80
-
-    jmp read
-
 exit:
+
     mov eax, 4
     mov ebx, 1
     mov ecx, exitmsg
