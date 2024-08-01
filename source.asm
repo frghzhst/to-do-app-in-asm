@@ -61,7 +61,7 @@ startup:
     ;mov ebx, 1
     ;mov ecx, startupmsg1
     ;mov edx, size1
-    ;int 0x80 ; print input for debugging reason
+    ;int 0x80 print input for debugging reason
     cmp byte [buf], '1'
     je read
     
@@ -100,10 +100,13 @@ read:
     int 0x80 ; prints the file
 
     jmp startup
+
 write:
     jmp exit
+
 remove:
     jmp exit
+
 file_not_found:
     mov eax, 8
     mov ebx, filename
